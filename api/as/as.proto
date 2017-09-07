@@ -1,0 +1,146 @@
+syntax = "proto3";
+
+package as;
+
+// ApplicationServer is the server to be implemented by the application server.
+service ApplicationServer {
+	// JoinRequest requests the application server to validate the join-request and return an encrypted join-accept.
+	rpc JoinRequest(JoinRequestRequest) returns (JoinRequestResponse) {}
+
+	// HandleDataUp publishes data received from an end-device.
+	rpc HandleDataUp(HandleDataUpRequest) returns (HandleDataUpResponse) {}
+
+	// GetDataDown gets data from the downlink queue.
+	rpc GetDataDown(GetDataDownRequest) returns (GetDataDownResponse) {}
+
+	// HandleDataDownACK publishes a data-down ack response.
+	rpc HandleDataDownACK(HandleDataDownACKRequest) returns (HandleDataDownACKResponse) {}
+
+	// HandleError publishes an error message.
+	rpc HandleError(HandleErrorRequest) returns (HandleErrorResponse) {}
+}
+
+enum RXWindow {
+	RX1 = 0;
+	RX2 = 1;
+}
+
+enum ErrorType {
+	Generic = 0;
+	OTAA = 1;
+	DATA_UP_FCNT = 2;
+	DATA_UP_MIC = 3;
+}
+
+message DataRate {
+	string modulation = 1;
+	uint32 bandWidth = 2;
+	uint32 spreadFactor = 3;
+	uint32 bitrate = 4;
+}
+
+message RXInfo {
+	bytes mac = 1;
+	string time = 2;
+	int32 rssi = 3;
+	double loRaSNR = 4;
+	string name = 5;
+	double latitude = 6;
+	double longitude = 7;
+	double altitude = 8;
+}
+
+message TXInfo {
+	int64 frequency = 1;
+	DataRate dataRate = 2;
+	bool adr = 3;
+	string codeRate = 4;
+}
+
+message JoinRequestRequest {
+	// PHYPayload of the join-request.
+	bytes phyPayload = 1;
+
+	// DevAddr assigned by the network-server.
+	bytes devAddr = 2;
+
+	// NetID assigned by the network-server.
+	bytes netID = 3;
+
+	// Custom channels to add to the join-accept response.
+	repeated uint32 cFList = 4;
+}
+
+message JoinRequestResponse {
+	// The encrypted PHYPayload containing the join-accept.
+	bytes phyPayload = 1;
+
+	// The network-session key (16 bytes).
+	bytes nwkSKey = 2;
+
+	// the RX delay value (0 = 1 sec, 1 = 1 sec, 2 = 2 sec ...).
+	uint32 rxDelay = 3;
+
+	// The data-rate offset used for RX1 (see LoRaWAN specs for valid values).
+	uint32 rx1DROffset = 4;
+
+	// The RX window to use for downlink transmissions.
+	RXWindow rxWindow = 6;
+
+	// The data-rate to use for RX2 transmissions.
+	uint32 rx2DR = 7;
+
+	// The data-rate to use for RX2 transmissions.
+	bool disableFCntCheck = 8;
+
+	// The interval (based on frame-counter) on which to calculate the ideal
+	// data-rate and tx-power of the node and if needed, request an adaption.
+	uint32 adrInterval = 9;
+
+	// The installation margin to take into account when calculating the ideal
+	// data-rate and tx-power. The default recommended value is 5dB.
+	double installationMargin = 10;
+}
+
+message HandleDataUpRequest {
+	bytes devEUI = 1;
+	bytes appEUI = 2;
+	uint32 fCnt = 3;
+	uint32 fPort = 4;
+	bytes data = 5;
+	TXInfo txInfo = 6;
+	repeated RXInfo rxInfo = 7;
+}
+
+message GetDataDownRequest {
+	bytes devEUI = 1;
+	bytes appEUI = 2;
+	uint32 maxPayloadSize = 3;
+	uint32 fCnt = 4;
+}
+
+message GetDataDownResponse {
+	bytes data = 1;
+	bool confirmed = 2;
+	uint32 fPort = 3;
+	bool moreData = 4;
+}
+
+message HandleDataUpResponse {}
+
+message HandleDataDownACKRequest {
+	bytes devEUI = 1;
+	bytes appEUI = 2;
+	uint32 fCnt = 3;
+}
+
+message HandleDataDownACKResponse {}
+
+message HandleErrorRequest {
+	bytes devEUI = 1;
+	bytes appEUI = 2;
+	ErrorType type = 3;
+	string error = 4;
+}
+
+message HandleErrorResponse {}
