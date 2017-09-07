@@ -1,9 +1,8 @@
 # LoRa Server
 
-[![Build Status](https://travis-ci.org/brocaar/loraserver.svg?branch=master)](https://travis-ci.org/brocaar/loraserver)
-[![Gitter chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/loraserver/loraserver)
 
-LoRa Server LoraWAN a?-sunucunun aç?k kodlu bir versiyonudur. Uplink veri yönetimi , gateway kontrolü ve downlink çizgilendirmeden sorumludur. 
+
+LoRa Server LoraWAN ag-sunucunun aÃ§ik kodlu bir versiyonudur. Uplink veri yÃ¶netimi , gateway kontrolÃ¼ ve downlink Ã§izgilendirmeden sorumludur. 
 
 ## Architecture
 
