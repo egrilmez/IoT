@@ -1,0 +1,37 @@
+version: "2"
+services:
+  loraserver:
+    build:
+      context: .
+      dockerfile: Dockerfile-devel
+    command: make serve
+    volumes:
+      - ./:/go/src/github.com/brocaar/loraserver
+    links:
+      - postgres
+      - redis
+      - mosquitto
+    environment:
+      - DB_AUTOMIGRATE=true
+      - NET_ID=010203
+      - BAND=EU_863_870
+      - REDIS_URL=redis://redis:6379
+      - GW_MQTT_SERVER=tcp://mosquitto:1883
+      - GW_SERVER_JWT_SECRET=verysecret
+      - POSTGRES_DSN=postgres://loraserver:loraserver@postgres/loraserver?sslmode=disable
+      - TEST_POSTGRES_DSN=postgres://loraserver:loraserver@postgres/loraserver?sslmode=disable
+      - TEST_REDIS_URL=redis://redis:6379
+      - TEST_MQTT_SERVER=tcp://mosquitto:1883
+
+  postgres:
+    image: postgres:9.5
+    environment:
+      - POSTGRES_PASSWORD=loraserver
+      - POSTGRES_USER=loraserver
+      - POSTGRES_DB=loraserver
+
+  redis:
+    image: redis:3.0.7-alpine
+
+  mosquitto:
+    image: ansi/mosquitto
